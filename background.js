@@ -1,3 +1,7 @@
+// Match: 36-char UUID + '-' + alphanumeric suffix (case-insensitive)
+const REGEX = /\b[0-9a-fA-F-]{36}-[a-zA-Z0-9]+\b/;
+
+// Create the right-click menu (shows only when text is selected)
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "openCLM",
@@ -6,17 +10,19 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+// Handle clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "openCLM") {
-    const leadId = info.selectionText.trim();
+  if (info.menuItemId !== "openCLM") return;
 
-    const regex = /\b[a-f0-9\-]{36}-[a-z0-9]+\b/;
+  const text = (info.selectionText || "").trim();
+  if (!REGEX.test(text)) return;
 
-    if (!regex.test(leadId)) {
-      return; // ignore invalid selection
-    }
+  const url = `https://clm.bhanzu.com/students/all/${text}`;
 
-    const clmUrl = `https://clm.bhanzu.com/students/all/${leadId}`;
-    chrome.tabs.create({ url: clmUrl });
-  }
+  // Open right next to current tab
+  chrome.tabs.create({
+    url,
+    index: tab.index + 1,
+    active: true   // set false if you don’t want to switch focus
+  });
 });
