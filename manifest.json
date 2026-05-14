@@ -18,8 +18,8 @@
   "commands": {
     "open-clm-selected-lead": {
       "suggested_key": {
-        "default": "Ctrl+Shift+C",
-        "mac": "Command+Shift+C"
+        "default": "Ctrl+Alt+X",
+        "mac": "Command+Option+X"
       },
       "description": "Open the selected lead ID in CLM"
     }
