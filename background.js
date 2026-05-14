@@ -10,6 +10,18 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+function openLeadInCLM(leadId, tabIndex = undefined) {
+  if (!REGEX.test(leadId)) return;
+
+  const url = `https://clm.bhanzu.com/students/all/${leadId}`;
+  const createOptions = { url, active: true };
+  if (typeof tabIndex === "number") {
+    createOptions.index = tabIndex + 1;
+  }
+
+  chrome.tabs.create(createOptions);
+}
+
 // Handle clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId !== "openCLM") return;
@@ -17,12 +29,22 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   const text = (info.selectionText || "").trim();
   if (!REGEX.test(text)) return;
 
-  const url = `https://clm.bhanzu.com/students/all/${text}`;
+  openLeadInCLM(text, tab?.index);
+});
 
-  // Open right next to current tab
-  chrome.tabs.create({
-    url,
-    index: tab.index + 1,
-    active: true   // set false if you don’t want to switch focus
-  });
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command !== "open-clm-selected-lead") return;
+
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) return;
+
+  try {
+    const response = await chrome.tabs.sendMessage(tab.id, { action: "getSelectedLeadId" });
+    const selection = (response?.selection || "").trim();
+    if (!REGEX.test(selection)) return;
+
+    openLeadInCLM(selection, tab.index);
+  } catch (error) {
+    console.warn("Lead ID Quick Opener: no content script response", error);
+  }
 });

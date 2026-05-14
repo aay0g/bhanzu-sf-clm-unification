@@ -1,19 +1,35 @@
 {
   "manifest_version": 3,
   "name": "Lead ID Quick Opener",
-  "version": "1.1",
-  "description": "Open CLM lead directly from detected ID",
-  "permissions": ["contextMenus", "activeTab", "scripting"],
+  "version": "1.3.0",
+  "description": "Open lead IDs from force.com directly in CLM.",
+  "permissions": ["contextMenus"],
+  "host_permissions": ["*://*.force.com/*"],
   "background": {
     "service_worker": "background.js"
   },
-  "host_permissions": [
-    "*://*.force.com/*"
-  ],
   "content_scripts": [
     {
       "matches": ["*://*.force.com/*"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": "document_idle"
     }
-  ]
+  ],
+  "commands": {
+    "open-clm-selected-lead": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+C",
+        "mac": "Command+Shift+C"
+      },
+      "description": "Open the selected lead ID in CLM"
+    }
+  },
+  "action": {
+    "default_title": "Lead ID Opener"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
 }
